@@ -1,0 +1,22 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "narou-dl"
+version = "0.1.0"
+description = "Download Narou novels and build EPUBs (personal use)."
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+  "beautifulsoup4",
+  "ebooklib",
+  "lxml",
+  "requests",
+]
+
+[project.scripts]
+narou-dl = "narou_dl:main"
+
+[tool.setuptools]
+py-modules = ["narou_dl"]
