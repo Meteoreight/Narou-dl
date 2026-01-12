@@ -11,6 +11,7 @@ from urllib.parse import urljoin, urlparse
 import requests
 from bs4 import BeautifulSoup
 from ebooklib import epub
+from tqdm import tqdm
 
 NCODE_RE = re.compile(r"/(n\d{4,}[a-z]{1,2})(?:/|$)", re.IGNORECASE)
 EP_PATH_RE = re.compile(r"^/(n\d{4,}[a-z]{1,2})/(\d+)/?$", re.IGNORECASE)
@@ -273,7 +274,7 @@ def main() -> None:
     if not episode_urls:
         episode_urls = [index_url]
 
-    episodes: list[Episode] = []
+    filtered_urls: list[str] = []
     for url in episode_urls:
         ep_no_m = re.search(rf"/{re.escape(ncode)}/(\d+)/", url, re.IGNORECASE)
         ep_no = int(ep_no_m.group(1)) if ep_no_m else 1
@@ -281,6 +282,12 @@ def main() -> None:
             continue
         if args.to_ep is not None and ep_no > args.to_ep:
             continue
+        filtered_urls.append(url)
+
+    episodes: list[Episode] = []
+    for url in tqdm(filtered_urls, unit="ep", desc="Fetching"):
+        ep_no_m = re.search(rf"/{re.escape(ncode)}/(\d+)/", url, re.IGNORECASE)
+        ep_no = int(ep_no_m.group(1)) if ep_no_m else 1
         episode = extract_episode(
             client,
             url,
@@ -289,7 +296,7 @@ def main() -> None:
             default_title=book_title,
         )
         episodes.append(episode)
-        print(f"fetched: {ep_no} {url}")
+        tqdm.write(f"fetched: {ep_no} {url}")
 
     if not episodes:
         raise SystemExit("No episodes matched the requested range.")

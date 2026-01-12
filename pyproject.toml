@@ -13,6 +13,7 @@ dependencies = [
   "ebooklib",
   "lxml",
   "requests",
+  "tqdm",
 ]
 
 [project.scripts]
